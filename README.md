@@ -1,6 +1,94 @@
-# AI Cold Caller Backend v2
+# AI Caller
 
-A modular FastAPI backend for the AI Cold Caller system with Gemini AI integration.
+# 🌟 AI-Powered Outbound Call System for Customer Feedback
+
+A full-stack AI-driven voice automation platform built with FastAPI (backend) and React (frontend). The system automates outbound customer feedback calls using Google’s Gemini Live LLM and multiple text-to-speech providers (ElevenLabs, Sarvam, or Gemini native audio).
+
+This platform enables restaurants and businesses to proactively collect customer feedback through natural, conversational phone calls — while offering a clean, interactive React-based dashboard for call management, lead tracking, and analytics.
+
+## Problem Statement
+
+Traditional customer feedback collection methods (surveys, emails, review requests) suffer from low response rates and lack personalization. Businesses need an automated, scalable solution that can engage customers in natural conversations to gather honest feedback while maintaining a human-like, empathetic interaction. This system addresses the challenge of collecting meaningful customer insights at scale through AI-powered voice conversations.
+
+## Users & Context
+
+**Primary Users:**
+- **Restaurant Owners & Managers** : Hyderabad-based restaurants (e.g., Biryani Times) seeking to collect customer feedback after dining experiences
+- **Customer Service Teams** : Teams needing to proactively reach out to customers for feedback collection
+- **Business Analysts** : Professionals requiring structured feedback data for business improvement
+
+**Use Cases:**
+- Post-dining experience feedback collection
+- Customer satisfaction surveys via voice calls
+- Proactive customer engagement and relationship building
+- Automated follow-up calls after service delivery
+
+**Context:**
+The system is designed for the Indian market, particularly Hyderabad, with support for multiple languages (English, Hindi, and other Indian languages via Sarvam TTS). It handles both positive and negative feedback scenarios, maintaining a warm, empathetic tone throughout conversations.
+
+## Solution Overview
+
+The system provides a FastAPI-powered REST API that triggers outbound customer feedback calls. When a business initiates a call to a customer, an AI voice assistant (for example, “SARA” for Queens & Beans Café or “SAM” for Biryani Times) engages the customer in a natural, human-like conversation to collect genuine feedback about their recent experience.
+
+The AI assistant leverages Google’s Gemini Live LLM for real-time dialogue understanding and response generation, paired with high-quality text-to-speech engines (Sarvam, ElevenLabs, or Gemini Audio) to produce lifelike voices that sound warm and local.
+
+Meanwhile, the React-based frontend dashboard allows businesses to:
+
+- Upload and manage customer leads
+- Configure AI calling campaigns
+- Monitor live call activity
+- Review collected feedback and analytics
+
+By combining AI-driven conversation intelligence with an intuitive web interface, the system enables restaurants and businesses to automate personalized customer feedback calls at scale, while maintaining the warmth of a human touch.
+
+**Key Components:**
+1. **FastAPI Application**: REST API for initiating calls and handling webhooks
+2. **Twilio Integration**: Manages outbound calls and real-time audio streaming
+3. **Gemini Live LLM**: Powers natural language understanding and response generation
+4. **Multi-Provider TTS**: Supports ElevenLabs (English), Sarvam (Indian languages), or Gemini native audio
+5. **WebSocket Communication**: Real-time bidirectional audio streaming between Twilio and the AI system
+6. **React.js Frontend Dashboard** — A modern, intuitive UI for managing leads, launching campaigns, tracking calls, and viewing customer feedback insights in real-time.
+
+**Architecture Flow:**
+```
+Client → POST /call → FastAPI → Twilio API
+                              ↓
+                         Twilio Call Initiated
+                              ↓
+                         POST / (webhook)
+                              ↓
+                         TwiML Response
+                              ↓
+                    WebSocket /ws connection
+                              ↓
+                    Pipecat Pipeline:
+                    Audio Input → Gemini LLM → TTS → Audio Output
+```
+
+## Modes & Data
+
+### Operating Modes
+
+1. **Gemini Native Audio Mode** (default):
+   - Uses Gemini Live's built-in TTS
+   - Optimized for real-time conversation
+   - Lowest latency
+   - Best for English conversations
+
+### Data Sources
+
+- **Customer Phone Numbers**: Provided via API request
+- **Conversation Data**: Stored in Gemini Live session context
+- **Call Metadata**: Twilio provides call SIDs, status, and duration
+- **Feedback Data**: Extracted from conversation transcripts (requires additional logging/storage implementation)
+
+### Licenses
+
+- **Pipecat AI**: Open source (check pipecat-ai license)
+- **Twilio**: Commercial API service
+- **Google Gemini**: Commercial API service
+- **ElevenLabs**: Commercial API service
+- **Sarvam AI**: Commercial API service
 
 ## 🚀 Features
 
@@ -16,7 +104,7 @@ A modular FastAPI backend for the AI Cold Caller system with Gemini AI integrati
 ## 📁 Project Structure
 
 ```
-ai_caller_backend_v2/
+backend/
 ├── app/
 │   ├── api/                    # API endpoints
 │   │   ├── leads.py           # Lead management endpoints
@@ -39,6 +127,33 @@ ai_caller_backend_v2/
 ├── requirements.txt           # Python dependencies
 ├── env.example               # Environment variables template
 └── README.md                 # This file
+frontend/
+├──src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Layout.js       # Main layout with navigation
+│   │   ├── StatCard.js     # Statistics display component
+│   │   ├── SystemStatus.js # System health component
+│   │   ├── RecentLeads.js  # Recent leads component
+│   │   ├── RecentCalls.js  # Recent calls component
+│   │   └── QuickActions.js # Quick action buttons
+│   ├── pages/              # Page components
+│   │   ├── Dashboard.js    # Main dashboard
+│   │   ├── Leads.js        # Leads listing page
+│   │   ├── LeadForm.js     # Add/edit lead form
+│   │   ├── LeadDetail.js   # Lead detail page
+│   │   ├── Calls.js        # Calls listing page
+│   │   ├── Reports.js      # Analytics and reports
+│   │   └── UploadLeads.js  # CSV import page
+│   ├── services/           # API and external services
+│   │   └── api.js         # API client and endpoints
+│   ├── hooks/              # Custom React hooks
+│   ├── utils/              # Utility functions
+│   ├── contexts/           # React contexts
+│   ├── assets/             # Static assets
+│   ├── App.js              # Main app component
+│   ├── index.js            # App entry point
+│   └── index.css           # Global styles
+```
 ```
 
 ## 🛠️ Installation
@@ -52,11 +167,15 @@ ai_caller_backend_v2/
 
 1. **Clone the repository**
    ```bash
-   cd ai_caller_backend_v2
+   git clone https://github.com/Noor-Hasan-Shaik/AICaller
+   cd AICaller/backend
    ```
 
 2. **Install dependencies**
    ```bash
+   python3 -m venv venv
+   source venv/bin/activate (Linux/Mac)
+   venv/Scripts/activate(Windows)
    pip install -r requirements.txt
    ```
 
@@ -69,6 +188,14 @@ ai_caller_backend_v2/
 4. **Run the application**
    ```bash
    python main.py
+   ```
+
+5. **Run the Frontend Application**
+     Open New Terminal
+   ```
+   cd AICaller/frontend
+   npm install
+   npm run dev
    ```
 
 ## ⚙️ Configuration
@@ -143,52 +270,6 @@ http://localhost:8000
 - **Swagger UI**: `http://localhost:8000/docs`
 - **ReDoc**: `http://localhost:8000/redoc`
 
-## 🤖 AI Integration
-
-### Gemini AI Features
-
-- **Conversation Management**: Natural language processing for cold calling
-- **Lead Qualification**: Intelligent lead scoring and qualification
-- **Meeting Scheduling**: Automated meeting scheduling capabilities
-- **Sentiment Analysis**: Conversation sentiment and insight extraction
-- **Follow-up Generation**: Automated follow-up message creation
-
-### System Prompt
-
-The AI is configured with a specialized system prompt for cold calling:
-
-- Professional and conversational tone
-- Lead qualification focus
-- Meeting scheduling capabilities
-- Feedback collection
-- Domain-specific knowledge (AispireLabs)
-
-## 🗄️ Database Models
-
-### Lead Model
-- Basic information (name, phone, email, company)
-- Status tracking (pending, scheduled, calling, called, not_interested)
-- Priority scoring (1-5 scale)
-- Timestamps and audit trail
-
-### Call Model
-- Call tracking (SID, status, outcome, duration)
-- Recording and meeting URLs
-- Lead relationship
-- Performance metrics
-
-### Conversation Message Model
-- AI conversation history
-- Role-based messages (user/assistant)
-- Timestamp tracking
-- Call relationship
-
-### System Status Model
-- Scheduler status
-- Active call tracking
-- Queue health monitoring
-- Performance metrics
-
 ## 🔧 Development
 
 ### Running in Development Mode
@@ -239,29 +320,83 @@ EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-## 🔒 Security Considerations
 
-- **API Keys**: Store sensitive API keys in environment variables
-- **CORS**: Configure allowed origins for production
-- **Rate Limiting**: Implement rate limiting for production use
-- **Authentication**: Add JWT authentication for production
-- **HTTPS**: Use HTTPS in production environments
+## Evaluation & Guardrails
 
-## 🤝 Contributing
+### Evaluation Metrics
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+- **Call Success Rate**: Percentage of successfully connected calls
+- **Conversation Completion Rate**: Percentage of calls where feedback was collected
+- **Response Time (TTFB)**: Time to first audio response from AI
+- **Customer Satisfaction**: Feedback quality and sentiment (requires post-call analysis)
+- **API Latency**: End-to-end response time for API calls
 
-## 📄 License
+### Guardrails & Safety Measures
 
-This project is licensed under the MIT License.
+1. **Input Validation**:
+   - Phone number format validation (E.164 format)
 
-## 🆘 Support
+2. **Error Handling**:
+   - Graceful fallback to Gemini native audio if TTS provider fails
+   - Automatic retry mechanisms for transient failures
+   - Comprehensive error logging
 
-For support and questions:
-- Check the API documentation at `/docs`
-- Review the health endpoints for service status
-- Check the application logs for detailed error information 
+3. **Content Safety**:
+   - System prompt designed to maintain professional, empathetic tone
+   - No offensive or inappropriate content generation
+   - Customer data privacy considerations
+
+4. **Monitoring**:
+   - Health check endpoints for system status
+   - Logging for debugging and monitoring
+   - Twilio call status tracking
+
+## Known Limitations & Risks
+
+### Limitations
+
+1. **Tool Checking Delay**: Even with empty tools array, Gemini adapter may perform minimal tool checking, causing slight delays
+2. **TTS Conflicts**: Using external TTS (ElevenLabs/Sarvam) with Gemini Live may cause conflicts as Gemini Live outputs audio directly
+3. **Language Support**: Full multilingual support requires proper TTS provider configuration
+4. **Call Storage**: Conversation transcripts are not automatically stored (requires additional implementation)
+5. **Scalability**: In-memory call configuration storage (`call_tts_config`) is not suitable for production (should use Redis or similar)
+6. **No Call Recording**: System does not record calls by default (can be enabled via Twilio)
+
+### Risks
+
+1. **API Key Exposure**: Risk of API key leakage if `.env` file is committed to version control
+2. **Cost Management**: Unmonitored API usage can lead to unexpected costs (Twilio, Gemini, TTS providers)
+3. **Call Quality**: Network issues or high latency can affect call quality
+4. **Compliance**: May need to comply with telemarketing regulations (DNC lists, consent requirements)
+5. **Data Privacy**: Customer phone numbers and conversations need proper handling per GDPR/local regulations
+6. **Service Dependencies**: System depends on multiple external services (Twilio, Google, TTS providers) - any outage affects functionality
+
+### Mitigation Strategies
+
+- Use environment variables and never commit `.env` files
+- Implement usage monitoring and alerts
+- Add call recording for quality assurance
+- Implement DNC (Do Not Call) list checking
+- Use production-grade storage (Redis) for call configuration
+- Implement retry logic and circuit breakers for external services
+
+## Team Members
+
+**Noor Hasan Shaik ** 
+**Aajay Reddy Kobireddygari**
+
+*This project was developed as a duo team for the AIboomi Hackathon.*
+
+---
+
+## Additional Resources
+
+- [Twilio Documentation](https://www.twilio.com/docs)
+- [Google Gemini API](https://ai.google.dev/)
+- [Pipecat AI Documentation](https://reference-server.pipecat.ai/)
+- [ElevenLabs API](https://elevenlabs.io/docs)
+- [Sarvam AI Documentation](https://docs.sarvam.ai/)
+
+## Support
+
+For issues or questions, please refer to the project repository or contact the development team.
